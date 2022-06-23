@@ -27,6 +27,6 @@ const updateMongoDB = async function () {
 updateMongoDB();
 setInterval(() => {
   updateMongoDB();
-}, 60 * 60 * 1000);
+}, 8 * 60 * 60 * 1000);
 
 app.listen(8000);
