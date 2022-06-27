@@ -20,6 +20,11 @@ const mongo = {
 
     mongo.collection.deleteMany();
     mongo.collection.insertMany(items);
+
+    this.close();
+  },
+  close() {
+    this.client.disconnect();
   },
 };
 
