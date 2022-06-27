@@ -2,7 +2,8 @@ const { mongo } = require("./src/mongodb");
 const { notion } = require("./src/notion");
 const { htmlParser } = require("./src/htmlParser");
 const moment = require("moment");
-require("moment/locale/ko");
+require("moment-timezone");
+moment.tz.setDefault("Asia/Seoul");
 const app = require("express")();
 
 const updateMongoDB = async function () {
