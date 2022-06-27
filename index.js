@@ -48,6 +48,6 @@ setInterval(() => {
   } catch (err) {
     console.error(err);
   }
-}, 1 * 60 * 60 * 1000);
+}, 50 * 60 * 1000);
 
 app.listen(8000);
