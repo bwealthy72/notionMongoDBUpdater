@@ -72,7 +72,6 @@ const notion = {
     const response = await client.databases.query({ database_id: id });
     const props = [];
     for (const m of response.results) {
-      console.log(m.properties);
       props.push({
         title: m.properties.title.title[0].plain_text,
         artist: m.properties.artist.rich_text[0].plain_text,
