@@ -38,7 +38,7 @@ const updateMongoDB = async function () {
   console.log(musics);
   await mongo.insertMany("notion", "musics", musics);
 
-  console.log("Updated", moment(new Date()).fromNow());
+  console.log("Updated", moment(new Date()));
 };
 
 updateMongoDB();
