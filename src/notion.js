@@ -72,10 +72,12 @@ const notion = {
     const response = await client.databases.query({ database_id: id });
     const props = [];
     for (const m of response.results) {
+      console.log(m.properties.image);
       props.push({
         title: m.properties.title.title[0].plain_text,
         artist: m.properties.artist.rich_text[0].plain_text,
         src: m.properties.src.files[0].file.url,
+        image: m.properties.image.files[0].file.url,
       });
     }
     return props;
