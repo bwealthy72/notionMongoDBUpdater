@@ -29,7 +29,7 @@ const updateMongoDB = async function () {
   // Post
   await mongo.insertMany("notion", "posts", result);
 
-  const cateResult = [];
+  const cateResult = [{ category: "전체", count: pages.length }];
   for (const category in categories) {
     cateResult.push({ category, count: categories[category] });
   }
