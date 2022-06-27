@@ -35,7 +35,6 @@ const updateMongoDB = async function () {
 
   // Musics
   const musics = await notion.getAllMusics(process.env.NOTION_MUSIC_DB_ID);
-  console.log(musics);
   await mongo.insertMany("notion", "musics", musics);
 
   console.log("Updated", moment(new Date()));
