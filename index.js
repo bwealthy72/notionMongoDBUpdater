@@ -2,6 +2,7 @@ const { mongo } = require("./src/mongodb");
 const { notion } = require("./src/notion");
 const { htmlParser } = require("./src/htmlParser");
 const moment = require("moment");
+require("moment/locale/ko");
 const app = require("express")();
 
 const updateMongoDB = async function () {
@@ -37,7 +38,6 @@ const updateMongoDB = async function () {
   const musics = await notion.getAllMusics(process.env.NOTION_MUSIC_DB_ID);
   await mongo.insertMany("notion", "musics", musics);
 
-  moment.locale("ko");
   console.log("Updated", moment(new Date()));
 };
 
