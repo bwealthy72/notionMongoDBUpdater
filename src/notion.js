@@ -18,10 +18,10 @@ const notion = {
       tags: page.properties.tags.multi_select.map((v) => v.name),
     };
   },
-  getAllPages: async function (start_cursor) {
+  async getAllPages(id, start_cursor) {
     let result = [];
     const options = {
-      database_id: process.env.NOTION_DATABASE_ID,
+      database_id: id,
       start_cursor,
       // Publish 된 것만 가져온다.
       filter: {
@@ -48,13 +48,13 @@ const notion = {
     result = result.concat(response.results);
 
     if (response.has_more) {
-      const sub = await this.getAllPages(response.next_cursor);
+      const sub = await this.getAllPages(id, response.next_cursor);
       result = result.concat(sub);
     }
 
     return result;
   },
-  getBlocksOf: async function (pageId) {
+  async getBlocksOf(pageId) {
     const blocks = [];
     const res = await client.blocks.children.list({ block_id: pageId });
     for (const block of res.results) {
@@ -66,6 +66,20 @@ const notion = {
       blocks.push(block);
     }
     return blocks;
+  },
+
+  async getAllMusics(id) {
+    const response = await client.databases.query({ database_id: id });
+    const props = [];
+    for (const m of response.results) {
+      console.log(m.properties);
+      props.push({
+        title: m.properties.title.title[0].plain_text,
+        artist: m.properties.artist.rich_text[0].plain_text,
+        src: m.properties.src.files[0].file.url,
+      });
+    }
+    return props;
   },
 };
 

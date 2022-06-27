@@ -5,29 +5,49 @@ const moment = require("moment");
 const app = require("express")();
 
 const updateMongoDB = async function () {
-  const pages = await notion.getAllPages();
-
-  await mongo.connectDB();
+  const pages = await notion.getAllPages(process.env.NOTION_POST_DB_ID);
 
   const result = [];
+  const categories = {};
   for (const page of pages) {
     const blocks = await notion.getBlocksOf(page.id);
+    const props = notion.getPropsOf(page);
+
+    categories[props.category] = categories.hasOwnProperty(props.category)
+      ? categories[props.category] + 1
+      : 1;
+
     result.push({
-      ...notion.getPropsOf(page),
+      ...props,
       body: htmlParser.parse(blocks),
     });
     console.log(page.id);
   }
 
-  mongo.collection.deleteMany();
-  mongo.collection.insertMany(result);
+  // Post
+  await mongo.insertMany("notion", "posts", result);
+
+  const cateResult = [];
+  for (const category in categories) {
+    cateResult.push({ category, count: categories[category] });
+  }
+  await mongo.insertMany("notion", "categories", cateResult);
+
+  // Musics
+  const musics = await notion.getAllMusics(process.env.NOTION_MUSIC_DB_ID);
+  console.log(musics);
+  await mongo.insertMany("notion", "musics", musics);
 
   console.log("Updated", moment(new Date()).fromNow());
 };
 
 updateMongoDB();
 setInterval(() => {
-  updateMongoDB();
-}, 3 * 60 * 60 * 1000);
+  try {
+    updateMongoDB();
+  } catch (err) {
+    console.error(err);
+  }
+}, 1 * 60 * 60 * 1000);
 
 app.listen(8000);
