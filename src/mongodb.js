@@ -18,13 +18,10 @@ const mongo = {
   async insertMany(db, collection, items) {
     await this.connectDB(db, collection);
 
-    mongo.collection.deleteMany();
-    mongo.collection.insertMany(items);
+    await mongo.collection.deleteMany();
+    await mongo.collection.insertMany(items);
 
-    this.close();
-  },
-  close() {
-    this.client.disconnect();
+    await this.client.close();
   },
 };
 
