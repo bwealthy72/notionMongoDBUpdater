@@ -9,11 +9,12 @@ const moment = require("moment");
 const notion = {
   getPropsOf(page) {
     return {
-      pid: page.id,
+      id: page.id,
       cover: page.cover,
       createdAt: moment(page.created_time).format(),
       updatedAt: moment(page.last_edited_time).format(),
-      category: page.properties.category.select.name,
+      oriCategory: page.properties.category.select.name,
+      category: page.properties.category.select.name.toLowerCase(),
       title: page.properties.title.title[0].plain_text,
       tags: page.properties.tags.multi_select.map((v) => v.name),
     };

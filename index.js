@@ -15,24 +15,35 @@ const updateMongoDB = async function () {
     const blocks = await notion.getBlocksOf(page.id);
     const props = notion.getPropsOf(page);
 
-    categories[props.category] = categories.hasOwnProperty(props.category)
-      ? categories[props.category] + 1
-      : 1;
+    if (categories.hasOwnProperty(props.category)) {
+      categories[props.category].count += 1;
+    } else {
+      categories[props.category] = {
+        oriCategory: props.oriCategory,
+        count: 1,
+      };
+    }
 
     result.push({
       ...props,
       body: htmlParser.parse(blocks),
     });
-    console.log(page.id);
   }
 
   // Post
   await mongo.insertMany("notion", "posts", result);
 
-  const cateResult = [{ category: "전체", count: pages.length }];
-  for (const category in categories) {
-    cateResult.push({ category, count: categories[category] });
+  const cateResult = [
+    { categoryOri: "전체", category: "", count: pages.length },
+  ];
+  for (const c in categories) {
+    cateResult.push({
+      categoryOri: categories[c].categoryOri,
+      category: c,
+      count: categories[c].count,
+    });
   }
+  console.log(cateResult);
   await mongo.insertMany("notion", "categories", cateResult);
 
   // Musics
