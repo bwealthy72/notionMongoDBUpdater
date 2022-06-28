@@ -28,22 +28,22 @@ const updateMongoDB = async function () {
       ...props,
       body: htmlParser.parse(blocks),
     });
+    console.log(page.id);
   }
 
   // Post
   await mongo.insertMany("notion", "posts", result);
 
   const cateResult = [
-    { categoryOri: "전체", category: "", count: pages.length },
+    { oriCategory: "전체", category: "", count: pages.length },
   ];
   for (const c in categories) {
     cateResult.push({
-      categoryOri: categories[c].categoryOri,
+      oriCategory: categories[c].oriCategory,
       category: c,
       count: categories[c].count,
     });
   }
-  console.log(cateResult);
   await mongo.insertMany("notion", "categories", cateResult);
 
   // Musics
