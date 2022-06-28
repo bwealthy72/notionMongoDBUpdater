@@ -1,7 +1,7 @@
 const hljs = require("highlight.js/lib/common");
 
 const htmlParser = {
-  parseText(text, annotations) {
+  parseText(text, annotations, href) {
     let result = text;
     if (annotations.bold) {
       result = `<strong>${result}</strong>`;
@@ -17,6 +17,9 @@ const htmlParser = {
     }
     if (annotations.code) {
       result = `<code class="code">${result}</code>`;
+    }
+    if (href) {
+      result = `<a href="${href}">${result}</a>`;
     }
     return result;
   },
@@ -39,7 +42,7 @@ const htmlParser = {
     let result = "";
     for (const text of obj[obj.type].rich_text) {
       const t = text.plain_text.replace("\n", "<br />");
-      result += this.parseText(t, text.annotations);
+      result += this.parseText(t, text.annotations, text.href);
     }
     let tag = "";
     let className = "";
