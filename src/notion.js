@@ -8,15 +8,17 @@ const moment = require("moment");
 
 const notion = {
   getPropsOf(page) {
+    const desc = page.properties.description.rich_text;
     return {
       id: page.id,
       cover: page.cover,
-      createdAt: moment(page.created_time).format(),
-      updatedAt: moment(page.last_edited_time).format(),
+      createdAt: page.created_time,
+      updatedAt: page.last_edited_time,
       oriCategory: page.properties.category.select.name,
       category: page.properties.category.select.name.toLowerCase(),
       title: page.properties.title.title[0].plain_text,
       tags: page.properties.tags.multi_select.map((v) => v.name),
+      description: desc.length > 0 ? desc[0].plain_text : "",
     };
   },
   async getAllPages(id, start_cursor) {
