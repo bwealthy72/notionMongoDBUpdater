@@ -132,7 +132,7 @@ const htmlParser = {
           html += "<hr />";
           break;
         case "image":
-          html += `<nuxt-img loading="lazy" src='${c.image.file.url}' />`;
+          html += `<img loading="lazy" width="400" src='${c.image.file.url}' />`;
           break;
         case "video":
           const re = /.*v=(.*)/gi;
