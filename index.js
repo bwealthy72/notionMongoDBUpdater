@@ -32,11 +32,14 @@ const updateMongoDB = async function () {
   }
 
   // Post
+  console.log("post inserting...");
   await mongo.insertMany("notion", "posts", result);
 
+  console.log("category inserting...");
   const cateResult = [
     { oriCategory: "전체", category: "", count: pages.length },
   ];
+
   for (const c in categories) {
     cateResult.push({
       oriCategory: categories[c].oriCategory,
@@ -47,6 +50,7 @@ const updateMongoDB = async function () {
   await mongo.insertMany("notion", "categories", cateResult);
 
   // Musics
+  console.log("music inserting...");
   const musics = await notion.getAllMusics(process.env.NOTION_MUSIC_DB_ID);
   await mongo.insertMany("notion", "musics", musics);
 
