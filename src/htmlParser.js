@@ -138,7 +138,7 @@ const htmlParser = {
           const re = /.*v=(.*)/gi;
           const videoId = re.exec(c.video.external.url)[1];
 
-          html += `<div preload="none" class="video"><div class="video-container"><iframe src="https://www.youtube-nocookie.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width=100%"></iframe></div></div>`;
+          html += `<div preload="none" class="video"><div class="video-container"><iframe src="https://www.youtube-nocookie.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>`;
           break;
         case "audio":
           html += `<audio controls preload="none" src=${c.audio.file.url}></audio>`;
