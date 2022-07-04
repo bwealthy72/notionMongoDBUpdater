@@ -146,7 +146,10 @@ const htmlParser = {
         case "callout":
           html += "<div class='callout'>";
           html += `<div class='callout__emoji'>${c.callout.icon.emoji}</div>`;
-          html += this.parseTexts(c, childrenHTML);
+          html += `<div class='callout__content'>${this.parseTexts(
+            c,
+            childrenHTML
+          )}</div>`;
           html += "</div>";
           break;
       }
