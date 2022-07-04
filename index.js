@@ -28,7 +28,7 @@ const updateMongoDB = async function () {
       ...props,
       body: htmlParser.parse(blocks),
     });
-    console.log(page.id);
+    console.log(page.id, props.title);
   }
 
   // Post
