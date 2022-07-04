@@ -36,7 +36,7 @@ const htmlParser = {
       },
     });
 
-    return `<pre class="code">${captionHTML}<div class="code__language">${language}</div><code class="hljs language-${codeObj.language}">${codeObj.value}</code></pre>`;
+    return `<pre class="code-block">${captionHTML}<div class="code-block__language">${language}</div><code class="code-block__content hljs language-${codeObj.language}">${codeObj.value}</code></pre>`;
   },
   parseTexts(obj, children = "") {
     let result = "";
