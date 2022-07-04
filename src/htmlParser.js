@@ -79,7 +79,7 @@ const htmlParser = {
         className = "callout__content";
       case "caption":
         tag = "p";
-        className = "code-block__caption";
+        className = "caption";
     }
 
     let openTag = `<${tag}`;
