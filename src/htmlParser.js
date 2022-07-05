@@ -2,7 +2,8 @@ const hljs = require("highlight.js/lib/common");
 
 const htmlParser = {
   parseText(text, annotations, href) {
-    let result = text;
+    let result = text.replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
+
     if (annotations.bold) {
       result = `<strong>${result}</strong>`;
     }
