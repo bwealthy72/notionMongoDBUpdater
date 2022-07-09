@@ -11,7 +11,7 @@ const notion = {
     const desc = page.properties.description.rich_text;
     return {
       id: page.id,
-      cover: page.cover ? page.cover.file.url : null,
+      cover: page.cover ? page.cover[page.cover.type].url : null,
       createdAt: page.created_time,
       updatedAt: page.last_edited_time,
       oriCategory: page.properties.category.select.name,
