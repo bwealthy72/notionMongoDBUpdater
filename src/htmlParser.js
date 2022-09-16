@@ -158,6 +158,12 @@ const htmlParser = {
           )}</div>`;
           html += "</div>";
           break;
+        case "embed":
+          const u = c.embed.url.split("/");
+          const hash = u[u.length - 1];
+
+          html += `<iframe height="300" style="width: 100%;" scrolling="no" title="Untitled" src="https://codepen.io/bwealthy72/embed/${hash}?default-tab=js%2Cresult" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"> </iframe>`;
+          break;
       }
 
       if (idx == content.length - 1) {
