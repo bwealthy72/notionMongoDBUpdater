@@ -81,11 +81,12 @@ const htmlParser = {
       case "caption":
         tag = "p";
         className = "caption";
+        break;
     }
 
     let openTag = `<${tag}`;
     if (className) {
-      openTag += ` class=${className}`;
+      openTag += ` class="${className}"`;
     }
     openTag += ">";
     const closeTag = `</${tag}>`;
@@ -117,6 +118,7 @@ const htmlParser = {
         case "to_do":
         case "bulleted_list_item":
         case "numbered_list_item":
+        case "todo":
           if (prevType != c.type) {
             if (c.type === "numbered_list_item") {
               html += "<ol>";
@@ -163,6 +165,13 @@ const htmlParser = {
           const hash = u[u.length - 1];
 
           html += `<iframe height="300" style="width: 100%;" scrolling="no" title="Untitled" src="https://codepen.io/bwealthy72/embed/${hash}?default-tab=js%2Cresult" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"> </iframe>`;
+          break;
+        case "file":
+          const url = c.file.file.url;
+          const lastUrl = url.split("/");
+          const fileName = lastUrl[lastUrl.length - 1].split("?")[0];
+
+          html += `<a href="${url}" class="file">${fileName}</a>`;
           break;
       }
 
