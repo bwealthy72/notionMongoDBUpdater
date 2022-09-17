@@ -43,8 +43,7 @@ const htmlParser = {
   parseTexts(obj, children = "") {
     let result = "";
     for (const text of obj[obj.type].rich_text) {
-      const t = text.plain_text.replace("\n", "<br />");
-      result += this.parseText(t, text.annotations, text.href);
+      result += this.parseText(text.plain_text, text.annotations, text.href);
     }
     let tag = "";
     let className = "";
