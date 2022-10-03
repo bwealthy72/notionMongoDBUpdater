@@ -11,6 +11,9 @@ const updateMongoDB = async function () {
 
   const result = [];
   const categories = {};
+
+  let count = 0;
+  const startTime = new Date();
   for (const page of pages) {
     const blocks = await notion.getBlocksOf(page.id);
     const props = notion.getPropsOf(page);
@@ -26,9 +29,16 @@ const updateMongoDB = async function () {
 
     result.push({
       ...props,
-      body: htmlParser.parse(blocks),
+      body: await htmlParser.parse(blocks),
     });
-    console.log(page.id, props.title);
+
+    const currTime = new Date();
+    console.log(
+      ++count,
+      page.id,
+      props.title,
+      ((currTime - startTime) / 1000).toFixed(3) + "s"
+    );
   }
 
   // Post
@@ -54,7 +64,7 @@ const updateMongoDB = async function () {
   const musics = await notion.getAllMusics(process.env.NOTION_MUSIC_DB_ID);
   await mongo.insertMany("notion", "musics", musics);
 
-  console.log("Updated", moment(new Date()).format());
+  console.log("Updated", moment(new Date()).format("LL"));
 };
 
 updateMongoDB();

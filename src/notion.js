@@ -4,13 +4,14 @@ const { Client } = require("@notionhq/client");
 
 const client = new Client({ auth: process.env.NOTION_KEY });
 
-const moment = require("moment");
-
 const notion = {
+  async getPage(id) {
+    return await client.pages.retrieve({ page_id: id });
+  },
   getPropsOf(page) {
     const desc = page.properties.description.rich_text;
     return {
-      id: page.id,
+      slug: page.properties.slug.formula.string,
       cover: page.cover ? page.cover[page.cover.type].url : null,
       createdAt: page.created_time,
       updatedAt: page.last_edited_time,
@@ -59,6 +60,7 @@ const notion = {
   },
   async getBlocksOf(pageId) {
     const blocks = [];
+
     const res = await client.blocks.children.list({ block_id: pageId });
     for (const block of res.results) {
       block.children = [];

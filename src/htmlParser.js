@@ -1,4 +1,7 @@
+const ogs = require("open-graph-scraper");
 const hljs = require("highlight.js/lib/common");
+const { default: axios } = require("axios");
+const { notion } = require("./notion");
 
 const htmlParser = {
   parseText(text, annotations, href) {
@@ -40,13 +43,14 @@ const htmlParser = {
     return `<pre class="code-block"><div class="code-block__language ${language}">${language}</div>${captionHTML}<code class="code-block__content hljs language-${codeObj.language}">${codeObj.value}</code>
             </pre>`;
   },
-  parseTexts(obj, children = "") {
+  parseTexts(obj, children = "", noTag = false) {
     let result = "";
     for (const text of obj[obj.type].rich_text) {
       result += this.parseText(text.plain_text, text.annotations, text.href);
     }
     let tag = "";
     let className = "";
+
     switch (obj.type) {
       case "heading_1":
         tag = "h1";
@@ -90,14 +94,24 @@ const htmlParser = {
     openTag += ">";
     const closeTag = `</${tag}>`;
 
-    return `${openTag}${result}${children}${closeTag}`;
+    if (noTag) {
+      return result;
+    } else {
+      return `${openTag}${result}${children}${closeTag}`;
+    }
   },
-  parse(content) {
+  async parse(content, depth = 0) {
     let html = "";
     let prevType = null;
 
-    content.forEach((c, idx) => {
-      const childrenHTML = this.parse(c.children);
+    let toc = "";
+    if (depth === 0) {
+      toc = `<div class="toc">`;
+    }
+
+    for (let idx = 0; idx < content.length; idx++) {
+      const c = content[idx];
+      const childrenHTML = await this.parse(c.children, depth + 1);
 
       // li -> p : list 끝  </ul> </ol> 추가
       if (prevType != c.type) {
@@ -110,8 +124,17 @@ const htmlParser = {
 
       switch (c.type) {
         case "heading_1":
+          if (depth == 0) {
+            toc += `<div class='h1'>${this.parseTexts(c, "", true)}</div>`;
+          }
         case "heading_2":
+          if (depth == 0) {
+            toc += `<div class='h2'>${this.parseTexts(c, "", true)}</div>`;
+          }
         case "heading_3":
+          if (depth == 0) {
+            toc += `<div class='h3'>${this.parseTexts(c, "", true)}</div>`;
+          }
         case "paragraph":
         case "quote":
         case "to_do":
@@ -172,6 +195,51 @@ const htmlParser = {
 
           html += `<a href="${url}" class="file">${fileName}</a>`;
           break;
+        case "bookmark":
+          try {
+            const data = await ogs({
+              url: c.bookmark.url,
+              onlyGetOpenGraphInfo: true,
+              timeout: 5000,
+              downloadLimit: 3000000,
+            });
+            const r = data?.result;
+            if (r?.success) {
+              html += `<a href="${r.ogUrl}" class="bookmark">
+                  <div class="bookmark__left">
+                    <h4 class="title">${r.ogTitle}</h4>
+                    <p class="desc">${r.ogDescription}</p>
+                    <p><img src="${r.favicon}" /><span>${r.ogUrl}</span></p>
+                  </div>
+                  <div class="bookmark__right">
+                    <img src="${r.ogImage.url}" />
+                  </div>
+                </a>
+              `;
+            }
+          } catch (e) {
+            console.error(e);
+          }
+          break;
+        case "link_to_page":
+          const page = await notion.getPage(c.link_to_page.page_id);
+          const props = notion.getPropsOf(page);
+          const _url = `/post/${props.category}/${props.slug}`;
+
+          html += `
+            <a href="${_url}" class="bookmark">
+              <div class="bookmark__left">
+                <h4 class="title">${props.title}</h4>
+                <p class="desc">${props.description}</p>
+                <p><img src="/favicon.ico" /><span>${_url}</span></p>
+              </div>
+              <div class="bookmark__right">
+                <img src="${props.cover ? props.cover : ""}" />
+              </div>
+            </a>
+          `;
+
+          break;
       }
 
       if (idx == content.length - 1) {
@@ -183,9 +251,14 @@ const htmlParser = {
       }
 
       prevType = c.type;
-    });
+    }
 
-    return html;
+    if (depth === 0) {
+      toc += "</div>";
+      return toc + html;
+    } else {
+      return html;
+    }
   },
 };
 
