@@ -3,6 +3,15 @@ const hljs = require("highlight.js/lib/common");
 const { default: axios } = require("axios");
 const { notion } = require("./notion");
 
+const slugify = (str) =>
+  str
+    .toLowerCase()
+    .trim()
+    .replace(/[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi, "-")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-$/g, "");
+
 const htmlParser = {
   parseText(text, annotations, href) {
     let result = text.replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
@@ -23,7 +32,7 @@ const htmlParser = {
       result = `<code class="code">${result}</code>`;
     }
     if (href) {
-      result = `<a href="${href}">${result}</a>`;
+      result = `<a href="${href}" target="_blank">${result}</a>`;
     }
     return result;
   },
@@ -40,7 +49,7 @@ const htmlParser = {
       },
     });
 
-    return `<pre class="code-block"><div class="code-block__language ${language}">${language}</div>${captionHTML}<code class="code-block__content hljs language-${codeObj.language}">${codeObj.value}</code>
+    return `<pre class="code-block"><div class="head"><p class="language ${language}">${language}</p>${captionHTML}</div><code class="code-block__content hljs language-${codeObj.language}">${codeObj.value}</code>
             </pre>`;
   },
   parseTexts(obj, children = "", noTag = false) {
@@ -109,6 +118,8 @@ const htmlParser = {
       toc = `<div class="toc">`;
     }
 
+    let isTocFirst = true;
+
     for (let idx = 0; idx < content.length; idx++) {
       const c = content[idx];
       const childrenHTML = await this.parse(c.children, depth + 1);
@@ -123,18 +134,31 @@ const htmlParser = {
       }
 
       switch (c.type) {
-        case "heading_1":
-          if (depth == 0) {
-            toc += `<div class='h1'>${this.parseTexts(c, "", true)}</div>`;
-          }
         case "heading_2":
+          const headerText = this.parseTexts(c, "", true);
+          const headerSlug = slugify(headerText);
           if (depth == 0) {
-            toc += `<div class='h2'>${this.parseTexts(c, "", true)}</div>`;
+            if (isTocFirst) {
+              toc += `<div class='toc-block'>`;
+              isTocFirst = false;
+            } else {
+              toc += `</div><div class='toc-block'>`;
+            }
+
+            toc += `<a class='h2' href='#${headerSlug}'>${headerText}</a>`;
           }
+
+          html += `<h2 id="${headerSlug}">${headerText}</h2>`;
+          break;
         case "heading_3":
+          const header3Text = this.parseTexts(c, "", true);
+          const header3Slug = slugify(header3Text);
+
           if (depth == 0) {
-            toc += `<div class='h3'>${this.parseTexts(c, "", true)}</div>`;
+            toc += `<a class='h3' href='#${header3Slug}'>${header3Text}</a>`;
           }
+          html += `<h3 id="${header3Slug}">${header3Text}</h3>`;
+          break;
         case "paragraph":
         case "quote":
         case "to_do":
@@ -182,11 +206,11 @@ const htmlParser = {
           )}</div>`;
           html += "</div>";
           break;
-        case "embed":
+        case "embed": // codepen
           const u = c.embed.url.split("/");
           const hash = u[u.length - 1];
 
-          html += `<iframe height="300" style="width: 100%;" scrolling="no" title="Untitled" src="https://codepen.io/bwealthy72/embed/${hash}?default-tab=js%2Cresult" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"> </iframe>`;
+          html += `<iframe height="500" style="width: 100%;" scrolling="no" title="Untitled" src="https://codepen.io/bwealthy72/embed/${hash}?default-tab=js%2Cresult&editable=true" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"> </iframe>`;
           break;
         case "file":
           const url = c.file.file.url;
@@ -199,21 +223,37 @@ const htmlParser = {
           try {
             const data = await ogs({
               url: c.bookmark.url,
-              onlyGetOpenGraphInfo: true,
               timeout: 5000,
               downloadLimit: 3000000,
             });
             const r = data?.result;
             if (r?.success) {
-              html += `<a href="${r.ogUrl}" class="bookmark">
+              let favicon = "";
+              if (r.favicon.startsWith("http")) {
+                favicon = r.favicon;
+              } else {
+                const re = /^https?:\/\/[^#?\/]+/gi;
+                const baseUrl = re.exec(r.requestUrl)[0];
+                favicon = baseUrl + r.favicon;
+              }
+
+              const right =
+                r.ogImage && r.ogImage.url
+                  ? `<div class="bookmark__right"><img src="${r.ogImage.url}" /></div>`
+                  : "";
+
+              const descHTML = r.ogDescription
+                ? `<p class="desc">${r.ogDescription}</p>`
+                : "";
+              const urlHTML = r.ogUrl ? `<p class="link">${r.ogUrl}</p>` : "";
+
+              html += `<a href="${r.ogUrl}" class="bookmark" target="_blank">
                   <div class="bookmark__left">
                     <h4 class="title">${r.ogTitle}</h4>
-                    <p class="desc">${r.ogDescription}</p>
-                    <p><img src="${r.favicon}" /><span>${r.ogUrl}</span></p>
+                    ${descHTML}
+                    ${urlHTML}
                   </div>
-                  <div class="bookmark__right">
-                    <img src="${r.ogImage.url}" />
-                  </div>
+                  ${right}
                 </a>
               `;
             }
@@ -227,7 +267,7 @@ const htmlParser = {
           const _url = `/post/${props.category}/${props.slug}`;
 
           html += `
-            <a href="${_url}" class="bookmark">
+            <a href="${_url}" class="bookmark" target="_blank">
               <div class="bookmark__left">
                 <h4 class="title">${props.title}</h4>
                 <p class="desc">${props.description}</p>
@@ -254,7 +294,7 @@ const htmlParser = {
     }
 
     if (depth === 0) {
-      toc += "</div>";
+      toc += "</div></div>";
       return toc + html;
     } else {
       return html;
