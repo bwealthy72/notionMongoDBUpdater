@@ -32,7 +32,7 @@ const htmlParser = {
       result = `<code class="code">${result}</code>`;
     }
     if (href) {
-      result = `<a href="${href}" target="_blank">${result}</a>`;
+      result = `<a href="${href}" target="_blank" class="text-link">${result}</a>`;
     }
     return result;
   },
