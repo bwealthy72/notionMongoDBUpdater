@@ -200,7 +200,7 @@ const htmlParser = {
         case "callout":
           const emoji = c.callout.icon.emoji;
 
-          const type = "";
+          let type = "";
           if (emoji === "⚠️") {
             type = "warn";
           } else if (emoji === "ℹ️") {
