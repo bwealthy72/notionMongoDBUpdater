@@ -198,9 +198,18 @@ const htmlParser = {
           html += `<audio controls preload="none" src=${c.audio.file.url}></audio>`;
           break;
         case "callout":
+          const emoji = c.callout.icon.emoji;
+
+          const type = "";
+          if (emoji === "⚠️") {
+            type = "warn";
+          } else if (emoji === "ℹ️") {
+            type = "info";
+          }
+
           html += "<div class='callout'>";
-          html += `<div class='callout__emoji'>${c.callout.icon.emoji}</div>`;
-          html += `<div class='callout__content'>${this.parseTexts(
+          html += `<div class='callout__emoji'>${emoji}</div>`;
+          html += `<div class='callout__content ${type}'>${this.parseTexts(
             c,
             childrenHTML
           )}</div>`;
