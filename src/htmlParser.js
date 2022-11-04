@@ -207,9 +207,9 @@ const htmlParser = {
             type = "info";
           }
 
-          html += "<div class='callout'>";
+          html += `<div class='callout ${type}'>`;
           html += `<div class='callout__emoji'>${emoji}</div>`;
-          html += `<div class='callout__content ${type}'>${this.parseTexts(
+          html += `<div class='callout__content'>${this.parseTexts(
             c,
             childrenHTML
           )}</div>`;
