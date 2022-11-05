@@ -93,13 +93,16 @@ const notion = {
     const props = [];
     for (const m of response.results) {
       const image = m.properties.image.files;
-      const year = moment(m.properties.created.created_time).month() + 1;
+      const year = moment(m.properties.created.created_time).year();
 
-      if (!props[year]) {
-        props[year] = [];
+      if (props.length == 0 || props[props.length - 1].year != year) {
+        props.push({
+          year,
+          events: [],
+        });
       }
 
-      props[year].push({
+      props[props.length - 1].events.push({
         title: m.properties.title.title[0].plain_text,
         content: m.properties.content.rich_text[0].plain_text,
         image: image.length > 0 ? image[0].file.url : "",
