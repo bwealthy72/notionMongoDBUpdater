@@ -95,7 +95,6 @@ const notion = {
       const image = m.properties.image.files;
       const year = moment(m.properties.created.created_time).month() + 1;
 
-      console.log(year);
       if (!props[year]) {
         props[year] = [];
       }
