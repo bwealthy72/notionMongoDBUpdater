@@ -86,6 +86,21 @@ const notion = {
     }
     return props;
   },
+
+  async getAllDiary(id) {
+    const response = await client.databases.query({ database_id: id });
+    const props = [];
+    for (const m of response.results) {
+      const image = m.properties.image.files;
+      props.push({
+        title: m.properties.title.title[0].plain_text,
+        content: m.properties.content.rich_text[0].plain_text,
+        image: image.length > 0 ? image[0].file.url : "",
+        created: m.properties.created.created_time,
+      });
+    }
+    return props;
+  },
 };
 
 exports.notion = notion;
