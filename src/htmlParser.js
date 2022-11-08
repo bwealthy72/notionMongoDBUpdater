@@ -274,17 +274,18 @@ const htmlParser = {
           const page = await notion.getPage(c.link_to_page.page_id);
           const props = notion.getPropsOf(page);
           const _url = `/post/${props.category}/${props.slug}`;
+          const img = props.cover
+            ? `<div class="bookmark__right"><img src="${props.cover}" /></div>`
+            : "";
 
           html += `
             <a href="${_url}" class="bookmark" target="_blank">
               <div class="bookmark__left">
                 <h4 class="title">${props.title}</h4>
                 <p class="desc">${props.description}</p>
-                <p><img src="/favicon.ico" /><span>${_url}</span></p>
+                <p><img src="/favicon.ico" class="favicon" /><span>${_url}</span></p>
               </div>
-              <div class="bookmark__right">
-                <img src="${props.cover ? props.cover : ""}" />
-              </div>
+              ${img}
             </a>
           `;
 
