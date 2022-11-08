@@ -283,7 +283,7 @@ const htmlParser = {
               <div class="bookmark__left">
                 <h4 class="title">${props.title}</h4>
                 <p class="desc">${props.description}</p>
-                <p><img src="/favicon.ico" class="favicon" /><span>${_url}</span></p>
+                <p><img src="/favicon.ico" class="favicon" /><span class="link">${_url}</span></p>
               </div>
               ${img}
             </a>
